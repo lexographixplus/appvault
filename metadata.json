@@ -1,0 +1,6 @@
+{
+  "name": "AppVault",
+  "description": "Application, resource, and infrastructure relationship manager backed by Google Sheets",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

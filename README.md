@@ -56,24 +56,46 @@ ships its endpoint in the client bundle, treat any sheet you connect to a public
 deployment as public data. For anything sensitive, keep the URL out of the build and
 let each user paste their own.
 
-## Deploying to GitHub Pages
+## Deploying
+
+Live at **<https://appvault.lexostudio.gm>**.
 
 Pushing to `main` triggers [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml),
-which typechecks, builds, and publishes `dist/` to Pages.
+which typechecks, builds, and publishes `dist/` to GitHub Pages.
 
 One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
-The workflow sets `BASE_PATH` from the repository name, so assets resolve under
-`/<repo>/`. To pre-configure the sync endpoint for the deployed site, add a repository
-*variable* named `VITE_SHEETS_WEB_APP_URL` under **Settings → Secrets and variables →
-Actions → Variables**. Left unset, the site starts in local-only mode and users supply
-their own URL.
+To pre-configure the sync endpoint for the deployed site, add a repository *variable*
+named `VITE_SHEETS_WEB_APP_URL` under **Settings → Secrets and variables → Actions →
+Variables**. Left unset, the site starts in local-only mode and users supply their own
+URL.
 
-Building for a root domain instead:
+### Base path
 
-```bash
-BASE_PATH=/ npm run build
-```
+Asset URLs are baked in at build time and must match how the site is served:
+
+- **Custom domain** (current setup) — served from the root, so `BASE_PATH=/`.
+- **Plain Pages project site** at `https://<user>.github.io/appvault/` — set a
+  `BASE_PATH` repository variable to `/appvault/`, or every asset 404s.
+
+`npm run preview` uses the same base as the build, so a mismatch shows up locally
+rather than in production.
+
+### Custom domain
+
+DNS lives in Cloudflare on the `lexostudio.gm` zone:
+
+| Type | Name | Target | Proxy |
+| --- | --- | --- | --- |
+| CNAME | `appvault` | `lexographixplus.github.io` | DNS only |
+
+[`public/CNAME`](public/CNAME) pins the domain into the published artifact so it
+survives changes to the Pages settings.
+
+Keep the record **unproxied (grey cloud)** while GitHub provisions its certificate —
+a proxied record intercepts the ACME challenge and the certificate never issues. Once
+*Enforce HTTPS* is available in Settings → Pages, proxying can be enabled, but set
+SSL/TLS to **Full (strict)** if you do.
 
 ## Scripts
 

@@ -34,8 +34,11 @@ jobs:
 
       - name: Build
         env:
-          # Repo path becomes the Pages sub-path, e.g. /appvault/
-          BASE_PATH: /${{ github.event.repository.name }}/
+          # The site is served from the root of the custom domain
+          # (appvault.lexostudio.gm), so assets live at /assets/*.
+          # Without a custom domain, Pages serves at /<repo>/ instead — set a
+          # BASE_PATH repository variable to "/appvault/" in that case.
+          BASE_PATH: ${{ vars.BASE_PATH || '/' }}
           # Optional: set as a repository variable (Settings > Secrets and
           # variables > Actions > Variables). Empty means local-only mode.
           VITE_SHEETS_WEB_APP_URL: ${{ vars.VITE_SHEETS_WEB_APP_URL }}

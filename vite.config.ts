@@ -3,10 +3,12 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
-// GitHub Pages serves project sites from https://<user>.github.io/<repo>/, so the
-// production bundle needs a matching base path or every asset request 404s.
-// Override with BASE_PATH=/ when building for a root domain.
-const BASE_PATH = process.env.BASE_PATH ?? '/appvault/';
+// The bundle's asset URLs must match the path the site is served from, or every
+// request 404s. This deployment uses the custom domain appvault.lexostudio.gm,
+// which serves from the root — hence '/'. A GitHub Pages *project* site without
+// a custom domain lives at https://<user>.github.io/<repo>/ and needs
+// BASE_PATH=/<repo>/ instead.
+const BASE_PATH = process.env.BASE_PATH ?? '/';
 
 export default defineConfig(({command, isPreview}) => {
   return {

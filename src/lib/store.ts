@@ -74,13 +74,10 @@ class Store {
       this.resetToDemoData();
     }
 
-    // Seed the endpoint from the build-time default only when nothing is saved.
-    // Overwriting unconditionally would discard a URL entered in the Sheets tab
-    // on every page load.
-    const currentConfig = this.getSheetsConfig();
-    if (!currentConfig.webAppUrl && DEFAULT_WEB_APP_URL) {
-      this.writeSheetsConfig({ webAppUrl: DEFAULT_WEB_APP_URL }, { silent: true });
-    }
+    // The build-time endpoint is supplied by getSheetsConfig's defaults, so a
+    // browser with no saved config picks it up automatically. Nothing is seeded
+    // here on purpose: re-seeding would make "clear the URL" impossible, since
+    // an intentionally emptied field would be refilled on the next load.
 
     this.startAutoSync();
 
@@ -170,8 +167,17 @@ class Store {
     );
   }
 
+  /**
+   * Saved settings layered over the build-time defaults:
+   *  - no saved config  → the VITE_SHEETS_WEB_APP_URL endpoint, so every fresh
+   *                       browser connects without any setup
+   *  - saved config     → whatever the user entered wins, including an empty
+   *                       URL, which means local-only
+   * Merging also backfills fields added after a config was last written.
+   */
   public getSheetsConfig(): SheetsConfig {
-    return this.getItem<SheetsConfig>('sheetsConfig', DEFAULT_SHEETS_CONFIG);
+    const saved = this.getItem<Partial<SheetsConfig> | null>('sheetsConfig', null);
+    return saved ? { ...DEFAULT_SHEETS_CONFIG, ...saved } : { ...DEFAULT_SHEETS_CONFIG };
   }
 
   // --- SETTERS & MUTATIONS ---
